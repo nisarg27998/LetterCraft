@@ -1,5 +1,3 @@
-import { Document, Packer, Paragraph, TextRun } from "docx";
-
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();

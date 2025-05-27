@@ -18,7 +18,14 @@
   "devDependencies": {
     "vite": "^6.3.5"
   },
-  "dependencies": {
-    "docx": "^9.5.0"
-  }
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nisarg27998/LetterCraft.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nisarg27998/LetterCraft/issues"
+  },
+  "homepage": "https://github.com/nisarg27998/LetterCraft#readme"
 }
