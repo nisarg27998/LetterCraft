@@ -1,5 +1,7 @@
 # Firebase Configuration (Security)
 firebaseConfig.js
+.firebaserc
+.firebase/
 
 # Environment variables
 .env
