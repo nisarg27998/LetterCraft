@@ -44,25 +44,34 @@ git clone https://github.com/yourusername/lettercraft.git
 cd lettercraft
 ```
 
-### 2. Firebase Setup
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project named "lettercraft"
-3. Enable Authentication with Email/Password
-4. Enable Firestore Database
-5. Update the Firebase configuration in `app.js` with your project details
+### 2. Firebase Configuration Setup (IMPORTANT - Security)
+1. Copy the example configuration file:
+   ```bash
+   cp firebaseConfig.example.js firebaseConfig.js
+   ```
+2. Go to [Firebase Console](https://console.firebase.google.com/)
+3. Create a new project named "lettercraft"
+4. Go to Project Settings > General > Your apps
+5. Click "Web" to create a web app
+6. Copy your Firebase configuration
+7. Replace the placeholder values in `firebaseConfig.js` with your actual Firebase config:
+   ```javascript
+   const firebaseConfig = {
+       apiKey: "your-actual-api-key",
+       authDomain: "your-project.firebaseapp.com",
+       projectId: "your-project-id",
+       storageBucket: "your-project.firebasestorage.app",
+       messagingSenderId: "your-sender-id",
+       appId: "your-app-id",
+   };
+   ```
+8. **NEVER commit firebaseConfig.js to version control** (it's already in .gitignore)
 
-### 3. Firebase Configuration
-Replace the Firebase config in `app.js`:
-```javascript
-const firebaseConfig = {
-    apiKey: "your-api-key",
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project.firebasestorage.app",
-    messagingSenderId: "your-sender-id",
-    appId: "your-app-id",
-};
-```
+### 3. Firebase Services Setup
+### 3. Firebase Services Setup
+1. Enable Authentication with Email/Password in Firebase Console
+2. Enable Firestore Database
+3. Set up Firestore security rules (see step 4)
 
 ### 4. Firestore Security Rules
 Set up the following security rules in Firebase Console:
@@ -84,27 +93,41 @@ service cloud.firestore {
 ### 5. Authentication Setup
 1. In Firebase Console, go to Authentication > Sign-in method
 2. Enable Email/Password authentication
-3. Create the admin user:
+3. Go to Authentication > Users
+4. Click "Add user" and create the admin user:
    - Email: admin@sample.com
    - Password: AdminPass@123
 
 ### 6. Deploy to GitHub Pages
-1. Push your code to GitHub
-2. Go to repository Settings > Pages
-3. Select source as "Deploy from a branch"
-4. Choose "main" branch and "/ (root)" folder
-5. Your site will be available at `https://yourusername.github.io/lettercraft`
+1. Ensure `firebaseConfig.js` is NOT committed (check .gitignore)
+2. Push your code to GitHub (firebaseConfig.js will be ignored)
+3. Go to repository Settings > Pages
+4. Select source as "Deploy from a branch"
+5. Choose "main" branch and "/ (root)" folder
+6. **Important:** You'll need to manually upload `firebaseConfig.js` to your hosting service or use environment variables for production
 
 ## File Structure
 
 ```
 lettercraft/
-├── index.html          # Main HTML file
-├── styles.css          # CSS styles with theme support
-├── app.js             # JavaScript functionality
-├── README.md          # Project documentation
-└── assets/            # Additional assets (if any)
+├── index.html                  # Main HTML file
+├── styles.css                  # CSS styles with theme support
+├── app.js                     # JavaScript functionality
+├── firebaseConfig.js          # Firebase config (NOT in version control)
+├── firebaseConfig.example.js  # Example config file
+├── .gitignore                 # Git ignore rules
+├── README.md                  # Project documentation
+└── assets/                    # Additional assets (if any)
 ```
+
+## Security Notes
+
+🔒 **Important Security Measures:**
+- `firebaseConfig.js` contains sensitive Firebase credentials
+- This file is excluded from version control via `.gitignore`
+- Never commit your actual Firebase configuration to GitHub
+- Use `firebaseConfig.example.js` as a template for others
+- For production deployment, consider using environment variables or secure hosting configuration
 
 ## Usage
 
