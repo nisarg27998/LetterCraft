@@ -93,7 +93,7 @@ cd lettercraft
 
 3. **Set Up Firestore Security Rules**:
    - The `firestore.rules` file defines security rules:
-     `javascript
+     ```javascript
      rules_version = '2';
       service cloud.firestore {
          match /databases/{database}/documents {
@@ -103,7 +103,7 @@ cd lettercraft
             }
          }
       }
-     `
+     ```
 
 ### 4. Install Dependencies
 
