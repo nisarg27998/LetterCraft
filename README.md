@@ -5,6 +5,7 @@ A professional letter creation and management system built with HTML, CSS, JavaS
 ## Features
 
 ✨ **Core Features:**
+
 - Create professional letters with structured format
 - View and search through all letters
 - Pagination for large letter collections
@@ -13,12 +14,14 @@ A professional letter creation and management system built with HTML, CSS, JavaS
 - Responsive design for all devices
 
 🔐 **Authentication:**
+
 - Firebase Authentication with Email/Password
 - Admin panel for letter creation
 - Role-based access control
 - Secure user management
 
 📱 **User Experience:**
+
 - Clean, modern interface
 - Loading screens and smooth animations
 - Search functionality
@@ -28,23 +31,27 @@ A professional letter creation and management system built with HTML, CSS, JavaS
 ## Demo
 
 ### Admin Access
+
 - **Email:** admin@sample.com
 - **Password:** AdminPass@123
 - Can create, edit, and download letters in both PDF and DOCX formats
 
 ### Regular Users
+
 - Can view and search letters
 - Can download letters in PDF format only
 
 ## Setup Instructions
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/yourusername/lettercraft.git
 cd lettercraft
 ```
 
 ### 2. Firebase Configuration Setup (IMPORTANT - Security)
+
 1. Copy the example configuration file:
    ```bash
    copy firebaseConfig.example.js firebaseConfig.js
@@ -57,19 +64,21 @@ cd lettercraft
 7. Replace the placeholder values in `firebaseConfig.js` with your actual Firebase config:
    ```javascript
    const firebaseConfig = {
-       apiKey: "your-actual-api-key",
-       authDomain: "your-project.firebaseapp.com",
-       projectId: "your-project-id",
-       storageBucket: "your-project.firebasestorage.app",
-       messagingSenderId: "your-sender-id",
-       appId: "your-app-id",
+     apiKey: "your-actual-api-key",
+     authDomain: "your-project.firebaseapp.com",
+     projectId: "your-project-id",
+     storageBucket: "your-project.firebasestorage.app",
+     messagingSenderId: "your-sender-id",
+     appId: "your-app-id",
    };
    window.firebaseConfig = firebaseConfig;
    ```
 8. **NEVER commit `firebaseConfig.js` to version control** (it's in `.gitignore`).
 
 ### 3. Firebase Services Setup
+
 1. **Enable Authentication**:
+
    - In Firebase Console, go to **Authentication** > **Sign-in method**.
    - Enable **Email/Password** authentication.
    - Go to **Authentication** > **Users**.
@@ -78,30 +87,33 @@ cd lettercraft
      - Password: `AdminPass@123`
 
 2. **Enable Firestore Database**:
+
    - In Firebase Console, go to **Firestore Database**.
    - Create a database in production mode.
 
 3. **Set Up Firestore Security Rules**:
    - The `firestore.rules` file defines security rules:
-     ```javascript
+     `javascript
      rules_version = '2';
-     service cloud.firestore {
-       match /databases/{database}/documents {
-         match /letters/{document} {
-           allow read: if request.auth != null;
-           allow write: if request.auth != null && request.auth.token.email == 'admin@sample.com';
+      service cloud.firestore {
+         match /databases/{database}/documents {
+            match /letters/{document} {
+               allow read: if true;
+               allow write: if request.auth != null && request.auth.token.email == 'admin@sample.com';
+            }
          }
-       }
-     }
-     ```
+      }
+     `
 
 ### 4. Install Dependencies
+
 1. Install Node.js dependencies (including Vite):
    ```bash
    npm install
    ```
 
 ### 5. Install Firebase CLI
+
 1. Install the Firebase CLI globally:
    ```bash
    npm install -g firebase-tools
@@ -112,6 +124,7 @@ cd lettercraft
    ```
 
 ### 6. Initialize Firebase Hosting
+
 1. Run:
    ```bash
    firebase init hosting
@@ -122,6 +135,7 @@ cd lettercraft
 5. Do not set up automatic builds with GitHub.
 
 ### 7. Build and Deploy
+
 1. Build the project with Vite:
    ```bash
    npm run build
@@ -154,6 +168,7 @@ lettercraft/
 ## Security Notes
 
 🔒 **Important Security Measures:**
+
 - `firebaseConfig.js` is excluded from version control via `.gitignore`.
 - Never commit Firebase credentials to GitHub.
 - Use `firebaseConfig.example.js` as a template.
@@ -163,6 +178,7 @@ lettercraft/
 ## Usage
 
 ### Creating Letters (Admin Only)
+
 1. Log in with admin credentials (`admin@sample.com`, `AdminPass@123`).
 2. Click **New Letter** button.
 3. Fill in all required fields:
@@ -176,6 +192,7 @@ lettercraft/
 4. Click **Save Letter**.
 
 ### Viewing Letters (All Users)
+
 1. Letters are displayed in a grid layout.
 2. Use the search bar to find specific letters.
 3. Click on any letter card to preview.
@@ -183,13 +200,13 @@ lettercraft/
 
 ### Features by User Type
 
-| Feature            | Admin | Regular User |
-|--------------------|-------|--------------|
-| View Letters       | ✅    | ✅           |
-| Search Letters     | ✅    | ✅           |
-| Create Letters     | ✅    | ❌           |
-| Download PDF       | ✅    | ✅           |
-| Download DOCX      | ✅    | ❌           |
+| Feature        | Admin | Regular User |
+| -------------- | ----- | ------------ |
+| View Letters   | ✅    | ✅           |
+| Search Letters | ✅    | ✅           |
+| Create Letters | ✅    | ❌           |
+| Download PDF   | ✅    | ✅           |
+| Download DOCX  | ✅    | ❌           |
 
 ## Technologies Used
 
@@ -224,6 +241,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 If you encounter any issues or have questions:
+
 1. Check the existing issues on GitHub.
 2. Create a new issue with a detailed description.
 3. Provide steps to reproduce the problem.
