@@ -9,7 +9,7 @@ A professional letter creation and management system built with HTML, CSS, JavaS
 - Create professional letters with structured format
 - View and search through all letters
 - Pagination for large letter collections
-- Download letters as PDF (all users) and DOCX (admin only)
+- Download letters as PDF
 - Dark/Light theme toggle
 - Responsive design for all devices
 
@@ -34,12 +34,12 @@ A professional letter creation and management system built with HTML, CSS, JavaS
 
 - **Email:** admin@sample.com
 - **Password:** AdminPass@123
-- Can create, edit, and download letters in both PDF and DOCX formats
+- Can create and edit letters
 
 ### Regular Users
 
 - Can view and search letters
-- Can download letters in PDF format only
+- Can download letters in PDF format
 
 ## Setup Instructions
 
@@ -196,7 +196,7 @@ lettercraft/
 1. Letters are displayed in a grid layout.
 2. Use the search bar to find specific letters.
 3. Click on any letter card to preview.
-4. Download as PDF (or DOCX for admin).
+4. Download as PDF.
 
 ### Features by User Type
 
@@ -206,7 +206,6 @@ lettercraft/
 | Search Letters | ✅    | ✅           |
 | Create Letters | ✅    | ❌           |
 | Download PDF   | ✅    | ✅           |
-| Download DOCX  | ✅    | ❌           |
 
 ## Technologies Used
 
@@ -216,7 +215,6 @@ lettercraft/
 - **Libraries:**
   - Font Awesome (icons)
   - jsPDF (PDF generation)
-  - docx.js (DOCX generation)
 - **Hosting:** Firebase Hosting
 
 ## Browser Support
@@ -252,7 +250,6 @@ If you encounter any issues or have questions:
 - Vite for build optimization
 - Font Awesome for icons
 - jsPDF for PDF generation
-- docx.js for DOCX generation
 
 ---
 

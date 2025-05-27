@@ -69,7 +69,11 @@ function updateUIForUser(user) {
         
         loginBtn.style.display = 'none';
         userInfo.style.display = 'flex';
-        userEmail.textContent = user.email;
+        // Only update userEmail if the element exists
+        const userEmailElement = document.getElementById('userEmail');
+        if (userEmailElement) {
+            userEmailElement.textContent = 'Admin';
+        }
         
         adminPanel.style.display = isAdmin ? 'block' : 'none';
         loginMessage.style.display = 'none';
@@ -276,12 +280,9 @@ function showLetterPreview(letterId) {
     previewModal.style.display = 'block';
     
     const downloadPdf = document.getElementById('downloadPdf');
-    const downloadDocx = document.getElementById('downloadDocx');
-    
-    downloadPdf.onclick = () => generatePDF(letter);
-    downloadDocx.onclick = () => generateDOCX(letter);
-    
-    downloadDocx.style.display = isAdmin ? 'inline-flex' : 'none';
+    if (downloadPdf) {
+        downloadPdf.onclick = () => generatePDF(letter);
+    }
 }
 
 function hidePreview() {
