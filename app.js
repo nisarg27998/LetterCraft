@@ -1,3 +1,13 @@
+// Firebase Configuration - Replace with your actual config
+const firebaseConfig = {
+    apiKey: "your-api-key",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "your-app-id"
+};
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -51,6 +61,33 @@ function updateThemeIcon(theme) {
     icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
 }
 
+// Custom Salutation and Closing Handling
+function handleSalutationChange(select) {
+    const customInput = document.getElementById('customSalutation');
+    if (select.value === 'custom') {
+        customInput.classList.add('show');
+        customInput.required = true;
+        customInput.focus();
+    } else {
+        customInput.classList.remove('show');
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
+
+function handleClosingChange(select) {
+    const customInput = document.getElementById('customClosing');
+    if (select.value === 'custom') {
+        customInput.classList.add('show');
+        customInput.required = true;
+        customInput.focus();
+    } else {
+        customInput.classList.remove('show');
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
+
 // Authentication Functions
 function showLogin() {
     loginModal.style.display = 'block';
@@ -69,7 +106,6 @@ function updateUIForUser(user) {
         
         loginBtn.style.display = 'none';
         userInfo.style.display = 'flex';
-        // Only update userEmail if the element exists
         const userEmailElement = document.getElementById('userEmail');
         if (userEmailElement) {
             userEmailElement.textContent = 'Admin';
@@ -231,6 +267,10 @@ async function createLetter(letterData) {
         letterForm.style.display = 'none';
         toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> New Letter';
         
+        // Reset custom inputs
+        document.getElementById('customSalutation').classList.remove('show');
+        document.getElementById('customClosing').classList.remove('show');
+        
         await loadLetters();
         
         alert('Letter created successfully!');
@@ -280,13 +320,39 @@ function showLetterPreview(letterId) {
     previewModal.style.display = 'block';
     
     const downloadPdf = document.getElementById('downloadPdf');
+    const deleteLetter = document.getElementById('deleteLetter');
+    
     if (downloadPdf) {
         downloadPdf.onclick = () => generatePDF(letter);
+    }
+    
+    if (deleteLetter) {
+        deleteLetter.style.display = isAdmin ? 'inline-flex' : 'none';
+        deleteLetter.onclick = () => confirmDeleteLetter(letter.id);
     }
 }
 
 function hidePreview() {
     previewModal.style.display = 'none';
+    letterPreview.innerHTML = '';
+}
+
+async function confirmDeleteLetter(letterId) {
+    if (!isAdmin) return;
+    
+    const confirmed = confirm('Are you sure you want to delete this letter? This action cannot be undone.');
+    
+    if (confirmed) {
+        try {
+            await db.collection('letters').doc(letterId).delete();
+            hidePreview();
+            await loadLetters();
+            alert('Letter deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting letter:', error);
+            alert('Error deleting letter. Please try again.');
+        }
+    }
 }
 
 // PDF Generation
@@ -333,71 +399,6 @@ function generatePDF(letter) {
     doc.save(`Letter_${letter.letterNumber}.pdf`);
 }
 
-// DOCX Generation (Admin only)
-function generateDOCX(letter) {
-    if (!isAdmin) return;
-
-    const doc = new Document({
-        sections: [{
-            properties: {},
-            children: [
-                new Paragraph({
-                    children: [
-                        new TextRun(`Letter No: ${letter.letterNumber}`),
-                        new TextRun(`\t\t\t\tDate: ${formatDate(letter.letterDate)}`),
-                    ],
-                }),
-                new Paragraph({ children: [new TextRun("")] }),
-                new Paragraph({ children: [new TextRun(letter.salutation)] }),
-                new Paragraph({ children: [new TextRun("")] }),
-                new Paragraph({
-                    alignment: docx.AlignmentType.CENTER,
-                    children: [
-                        new TextRun({
-                            text: `Subject: ${letter.subject}`,
-                            bold: true,
-                            underline: {},
-                        }),
-                    ],
-                }),
-                new Paragraph({ children: [new TextRun("")] }),
-                new Paragraph({ children: [new TextRun(letter.mainBody)] }),
-            ],
-        }],
-    });
-
-    if (letter.specialRemarks) {
-        doc.sections[0].children.push(
-            new Paragraph({ children: [new TextRun("")] }),
-            new Paragraph({
-                children: [new TextRun({ text: "Special Remarks:", bold: true })],
-            }),
-            new Paragraph({ children: [new TextRun(letter.specialRemarks)] })
-        );
-    }
-
-    doc.sections[0].children.push(
-        new Paragraph({ children: [new TextRun("")] }),
-        new Paragraph({
-            alignment: docx.AlignmentType.RIGHT,
-            children: [new TextRun(letter.closing)],
-        })
-    );
-
-    Packer.toBlob(doc).then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Letter_${letter.letterNumber}.docx`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }).catch(error => {
-        console.error('Error generating DOCX:', error);
-        alert('Failed to generate DOCX file.');
-    });
-}
-
-
 // Utility Functions
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -431,6 +432,15 @@ document.addEventListener('DOMContentLoaded', function() {
     loginBtn.addEventListener('click', showLogin);
     document.getElementById('closeLogin').addEventListener('click', hideLogin);
     
+    // Salutation and Closing change handlers
+    document.getElementById('salutation').addEventListener('change', function() {
+        handleSalutationChange(this);
+    });
+    
+    document.getElementById('closing').addEventListener('change', function() {
+        handleClosingChange(this);
+    });
+    
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('email').value;
@@ -449,6 +459,9 @@ document.addEventListener('DOMContentLoaded', function() {
             letterForm.style.display = 'none';
             this.innerHTML = '<i class="fas fa-plus"></i> New Letter';
             createLetterForm.reset();
+            // Reset custom inputs
+            document.getElementById('customSalutation').classList.remove('show');
+            document.getElementById('customClosing').classList.remove('show');
         }
     });
     
@@ -456,6 +469,9 @@ document.addEventListener('DOMContentLoaded', function() {
         letterForm.style.display = 'none';
         toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> New Letter';
         createLetterForm.reset();
+        // Reset custom inputs
+        document.getElementById('customSalutation').classList.remove('show');
+        document.getElementById('customClosing').classList.remove('show');
     });
     
     document.getElementById('createLetterForm').addEventListener('submit', async (e) => {
@@ -521,31 +537,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Make functions globally available for onclick handlers
 window.showLetterPreview = showLetterPreview;
+window.confirmDeleteLetter = confirmDeleteLetter;
 window.changePage = changePage;
-
-// Custom Salutation and Closing Handling
-function handleSalutationChange(select) {
-    const customInput = document.getElementById('customSalutation');
-    if (select.value === 'custom') {
-        customInput.style.display = 'block';
-        customInput.required = true;
-        select.name = 'salutationType';
-    } else {
-        customInput.style.display = 'none';
-        customInput.required = false;
-        customInput.value = '';
-    }
-}
-
-function handleClosingChange(select) {
-    const customInput = document.getElementById('customClosing');
-    if (select.value === 'custom') {
-        customInput.style.display = 'block';
-        customInput.required = true;
-        select.name = 'closingType';
-    } else {
-        customInput.style.display = 'none';
-        customInput.required = false;
-        customInput.value = '';
-    }
-}
