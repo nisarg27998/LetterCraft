@@ -91,7 +91,16 @@
 
                     <div class="form-group">
                         <label for="salutation">Salutation</label>
-                        <input type="text" id="salutation" placeholder="Dear Sir/Madam" required>
+                        <select id="salutation" class="form-select" required onchange="handleSalutationChange(this)">
+                            <option value="">Select Salutation</option>
+                            <option value="Dear Sir/Madam">Dear Sir/Madam</option>
+                            <option value="Dear Sir">Dear Sir</option>
+                            <option value="Dear Madam">Dear Madam</option>
+                            <option value="Respected Sir/Madam">Respected Sir/Madam</option>
+                            <option value="To Whom It May Concern">To Whom It May Concern</option>
+                            <option value="custom">Custom...</option>
+                        </select>
+                        <input type="text" id="customSalutation" class="custom-input" style="display: none;" placeholder="Enter custom salutation">
                     </div>
 
                     <div class="form-group">
@@ -111,7 +120,16 @@
 
                     <div class="form-group">
                         <label for="closing">Closing</label>
-                        <input type="text" id="closing" placeholder="Sincerely yours" required>
+                        <select id="closing" class="form-select" required onchange="handleClosingChange(this)">
+                            <option value="">Select Closing</option>
+                            <option value="Sincerely yours">Sincerely yours</option>
+                            <option value="Yours faithfully">Yours faithfully</option>
+                            <option value="Yours truly">Yours truly</option>
+                            <option value="Best regards">Best regards</option>
+                            <option value="Regards">Regards</option>
+                            <option value="custom">Custom...</option>
+                        </select>
+                        <input type="text" id="customClosing" class="custom-input" style="display: none;" placeholder="Enter custom closing">
                     </div>
 
                     <div class="form-actions">

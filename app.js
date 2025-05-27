@@ -458,17 +458,27 @@ document.addEventListener('DOMContentLoaded', function() {
         createLetterForm.reset();
     });
     
-    createLetterForm.addEventListener('submit', function(e) {
+    document.getElementById('createLetterForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Get salutation value
+        const salutationSelect = document.getElementById('salutation');
+        const customSalutation = document.getElementById('customSalutation');
+        const salutation = salutationSelect.value === 'custom' ? customSalutation.value : salutationSelect.value;
+        
+        // Get closing value
+        const closingSelect = document.getElementById('closing');
+        const customClosing = document.getElementById('customClosing');
+        const closing = closingSelect.value === 'custom' ? customClosing.value : closingSelect.value;
         
         const letterData = {
             letterNumber: document.getElementById('letterNumber').value,
             letterDate: document.getElementById('letterDate').value,
-            salutation: document.getElementById('salutation').value,
+            salutation: salutation,
             subject: document.getElementById('subject').value,
             mainBody: document.getElementById('mainBody').value,
             specialRemarks: document.getElementById('specialRemarks').value,
-            closing: document.getElementById('closing').value
+            closing: closing
         };
         
         createLetter(letterData);
@@ -512,3 +522,30 @@ document.addEventListener('DOMContentLoaded', function() {
 // Make functions globally available for onclick handlers
 window.showLetterPreview = showLetterPreview;
 window.changePage = changePage;
+
+// Custom Salutation and Closing Handling
+function handleSalutationChange(select) {
+    const customInput = document.getElementById('customSalutation');
+    if (select.value === 'custom') {
+        customInput.style.display = 'block';
+        customInput.required = true;
+        select.name = 'salutationType';
+    } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
+
+function handleClosingChange(select) {
+    const customInput = document.getElementById('customClosing');
+    if (select.value === 'custom') {
+        customInput.style.display = 'block';
+        customInput.required = true;
+        select.name = 'closingType';
+    } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
