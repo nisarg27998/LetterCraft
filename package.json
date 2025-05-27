@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "node-modules": "^1.0.1"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
