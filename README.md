@@ -1,6 +1,6 @@
 # LetterCraft 📝
 
-A professional letter creation and management system built with HTML, CSS, JavaScript, and Firebase. Create, manage, and download letters with ease.
+A professional letter creation and management system built with HTML, CSS, JavaScript, Firebase, and Vite for optimized builds.
 
 ## Features
 
@@ -47,7 +47,7 @@ cd lettercraft
 ### 2. Firebase Configuration Setup (IMPORTANT - Security)
 1. Copy the example configuration file:
    ```bash
-   cp firebaseConfig.example.js firebaseConfig.js
+   copy firebaseConfig.example.js firebaseConfig.js
    ```
 2. Go to [Firebase Console](https://console.firebase.google.com/)
 3. Create a new project named "lettercraft" (or use existing project `lettercraft-c71f7`).
@@ -66,7 +66,7 @@ cd lettercraft
    };
    window.firebaseConfig = firebaseConfig;
    ```
-8. **NEVER commit `firebaseConfig.js` to version control** (it's already in `.gitignore`).
+8. **NEVER commit `firebaseConfig.js` to version control** (it's in `.gitignore`).
 
 ### 3. Firebase Services Setup
 1. **Enable Authentication**:
@@ -82,7 +82,7 @@ cd lettercraft
    - Create a database in production mode.
 
 3. **Set Up Firestore Security Rules**:
-   - Create a `firestore.rules` file in your project root with the following content:
+   - The `firestore.rules` file defines security rules:
      ```javascript
      rules_version = '2';
      service cloud.firestore {
@@ -94,68 +94,58 @@ cd lettercraft
        }
      }
      ```
-   - Update `firebase.json` to reference the rules file:
-     ```json
-     {
-       "hosting": {
-         "public": ".",
-         "ignore": [
-           "firebase.json",
-           "**/.*",
-           "**/node_modules/**"
-         ],
-         "rewrites": [
-           {
-             "source": "**",
-             "destination": "/index.html"
-           }
-         ]
-       },
-       "firestore": {
-         "rules": "firestore.rules"
-       }
-     }
-     ```
 
-4. **Install Firebase CLI**:
-   - Install the Firebase CLI globally:
-     ```bash
-     npm install -g firebase-tools
-     ```
-   - Log in to Firebase:
-     ```bash
-     firebase login
-     ```
+### 4. Install Dependencies
+1. Install Node.js dependencies (including Vite):
+   ```bash
+   npm install
+   ```
 
-5. **Initialize Firebase Hosting**:
-   - Run:
-     ```bash
-     firebase init hosting
-     ```
-   - Select your Firebase project (`lettercraft-c71f7`).
-   - Set the public directory to `.` (root directory).
-   - Configure as a single-page app (rewrite all URLs to `/index.html`).
-   - Do not set up automatic builds with GitHub.
+### 5. Install Firebase CLI
+1. Install the Firebase CLI globally:
+   ```bash
+   npm install -g firebase-tools
+   ```
+2. Log in to Firebase:
+   ```bash
+   firebase login
+   ```
 
-6. **Deploy to Firebase Hosting**:
-   - Deploy both hosting files and Firestore rules:
-     ```bash
-     firebase deploy
-     ```
-   - This deploys your website files (`index.html`, `styles.css`, `app.js`, `firebaseConfig.js`) and `firestore.rules` to Firebase.
-   - Access your site at the provided URL (e.g., `https://lettercraft-c71f7.web.app`).
+### 6. Initialize Firebase Hosting
+1. Run:
+   ```bash
+   firebase init hosting
+   ```
+2. Select your Firebase project (`lettercraft-c71f7`).
+3. Set the public directory to `dist`.
+4. Configure as a single-page app (rewrite all URLs to `/index.html`).
+5. Do not set up automatic builds with GitHub.
+
+### 7. Build and Deploy
+1. Build the project with Vite:
+   ```bash
+   npm run build
+   ```
+2. Deploy to Firebase Hosting and Firestore rules:
+   ```bash
+   firebase deploy
+   ```
+3. Access your site at the provided URL (e.g., `https://lettercraft-c71f7.web.app`).
 
 ## File Structure
 
 ```
 lettercraft/
 ├── index.html                  # Main HTML file
-├── styles.css                  # CSS styles with theme support
+├── styles.css                  # CSS styles
 ├── app.js                     # JavaScript functionality
 ├── firebaseConfig.js          # Firebase config (NOT in version control)
 ├── firebaseConfig.example.js  # Example config file
 ├── firestore.rules            # Firestore Security Rules
 ├── firebase.json              # Firebase configuration
+├── vite.config.js             # Vite configuration
+├── package.json               # Project dependencies
+├── package-lock.json          # Dependency lock file
 ├── .gitignore                 # Git ignore rules
 ├── README.md                  # Project documentation
 └── assets/                    # Additional assets (if any)
@@ -164,10 +154,10 @@ lettercraft/
 ## Security Notes
 
 🔒 **Important Security Measures:**
-- `firebaseConfig.js` contains sensitive Firebase credentials and is excluded from version control via `.gitignore`.
-- Never commit your actual Firebase configuration to GitHub.
-- Use `firebaseConfig.example.js` as a template for others.
-- The `firestore.rules` file restricts write access to `admin@sample.com` and read access to authenticated users.
+- `firebaseConfig.js` is excluded from version control via `.gitignore`.
+- Never commit Firebase credentials to GitHub.
+- Use `firebaseConfig.example.js` as a template.
+- `firestore.rules` restricts write access to `admin@sample.com`.
 - In Google Cloud Console, restrict your Firebase API key to your Firebase Hosting domain (e.g., `https://lettercraft-c71f7.web.app`).
 
 ## Usage
@@ -204,6 +194,7 @@ lettercraft/
 ## Technologies Used
 
 - **Frontend:** HTML5, CSS3, JavaScript (ES6+)
+- **Build Tool:** Vite (minification and bundling)
 - **Backend:** Firebase (Firestore, Authentication, Hosting)
 - **Libraries:**
   - Font Awesome (icons)
@@ -240,6 +231,7 @@ If you encounter any issues or have questions:
 ## Acknowledgments
 
 - Firebase for backend and hosting services
+- Vite for build optimization
 - Font Awesome for icons
 - jsPDF for PDF generation
 - docx.js for DOCX generation

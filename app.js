@@ -1,18 +1,7 @@
-import { firebaseConfig } from './firebaseConfig.js';
-
-// Initialize Firebase using external config
-if (typeof window.firebaseConfig === 'undefined') {
-    console.error('Firebase configuration not found! Please ensure firebaseConfig.js is loaded.');
-    alert('Firebase configuration error. Please check the setup.');
-} else {
-    firebase.initializeApp(window.firebaseConfig);
-}
-
-
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-
 
 // Global Variables
 let currentUser = null;
@@ -40,6 +29,7 @@ const pagination = document.getElementById('pagination');
 const previewModal = document.getElementById('previewModal');
 const letterPreview = document.getElementById('letterPreview');
 const themeToggle = document.getElementById('themeToggle');
+const loginMessage = document.getElementById('loginMessage');
 
 // Theme Management
 function initTheme() {
@@ -81,11 +71,8 @@ function updateUIForUser(user) {
         userInfo.style.display = 'flex';
         userEmail.textContent = user.email;
         
-        if (isAdmin) {
-            adminPanel.style.display = 'block';
-        } else {
-            adminPanel.style.display = 'none';
-        }
+        adminPanel.style.display = isAdmin ? 'block' : 'none';
+        loginMessage.style.display = 'none';
     } else {
         currentUser = null;
         isAdmin = false;
@@ -93,6 +80,7 @@ function updateUIForUser(user) {
         loginBtn.style.display = 'block';
         userInfo.style.display = 'none';
         adminPanel.style.display = 'none';
+        loginMessage.style.display = 'block';
     }
 }
 
@@ -173,14 +161,12 @@ function renderPagination() {
     
     let paginationHTML = '';
     
-    // Previous button
     paginationHTML += `
         <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
             <i class="fas fa-chevron-left"></i>
         </button>
     `;
     
-    // Page numbers
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
             paginationHTML += `
@@ -193,7 +179,6 @@ function renderPagination() {
         }
     }
     
-    // Next button
     paginationHTML += `
         <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
             <i class="fas fa-chevron-right"></i>
@@ -238,12 +223,10 @@ async function createLetter(letterData) {
             createdBy: currentUser.email
         });
         
-        // Reset form and hide it
         createLetterForm.reset();
         letterForm.style.display = 'none';
         toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> New Letter';
         
-        // Reload letters
         await loadLetters();
         
         alert('Letter created successfully!');
@@ -292,14 +275,12 @@ function showLetterPreview(letterId) {
     letterPreview.innerHTML = previewHTML;
     previewModal.style.display = 'block';
     
-    // Setup download buttons
     const downloadPdf = document.getElementById('downloadPdf');
     const downloadDocx = document.getElementById('downloadDocx');
     
     downloadPdf.onclick = () => generatePDF(letter);
     downloadDocx.onclick = () => generateDOCX(letter);
     
-    // Show DOCX button only for admin
     downloadDocx.style.display = isAdmin ? 'inline-flex' : 'none';
 }
 
@@ -312,19 +293,15 @@ function generatePDF(letter) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
-    // Set font
     doc.setFont('times');
     
-    // Header
     doc.setFontSize(12);
     doc.text(`Letter No: ${letter.letterNumber}`, 20, 20);
     doc.text(`Date: ${formatDate(letter.letterDate)}`, 150, 20);
     
-    // Salutation
     doc.setFontSize(12);
     doc.text(letter.salutation, 20, 40);
     
-    // Subject
     doc.setFontSize(12);
     doc.setFont('times', 'bold');
     const subjectText = `Subject: ${letter.subject}`;
@@ -332,14 +309,12 @@ function generatePDF(letter) {
     const pageWidth = doc.internal.pageSize.getWidth();
     doc.text(subjectText, (pageWidth - subjectWidth) / 2, 60);
     
-    // Main Body
     doc.setFont('times', 'normal');
     const splitBody = doc.splitTextToSize(letter.mainBody, 170);
     doc.text(splitBody, 20, 80);
     
     let yPosition = 80 + (splitBody.length * 5);
     
-    // Special Remarks
     if (letter.specialRemarks) {
         yPosition += 10;
         doc.setFont('times', 'bold');
@@ -351,17 +326,21 @@ function generatePDF(letter) {
         yPosition += splitRemarks.length * 5;
     }
     
-    // Closing
     yPosition += 20;
     doc.text(letter.closing, 130, yPosition);
     
-    // Download
     doc.save(`Letter_${letter.letterNumber}.pdf`);
 }
 
 // DOCX Generation (Admin only)
 function generateDOCX(letter) {
     if (!isAdmin) return;
+    
+    if (typeof docx === 'undefined') {
+        console.error('docx library not loaded.');
+        alert('DOCX generation failed. Please try again later.');
+        return;
+    }
     
     const doc = new docx.Document({
         sections: [{
@@ -438,6 +417,9 @@ function generateDOCX(letter) {
         a.download = `Letter_${letter.letterNumber}.docx`;
         a.click();
         window.URL.revokeObjectURL(url);
+    }).catch(error => {
+        console.error('Error generating DOCX:', error);
+        alert('Failed to generate DOCX file.');
     });
 }
 
@@ -462,24 +444,18 @@ function generateLetterNumber() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize theme
     initTheme();
     
-    // Set default date to today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('letterDate').value = today;
     
-    // Generate default letter number
     document.getElementById('letterNumber').value = generateLetterNumber();
     
-    // Theme toggle
     themeToggle.addEventListener('click', toggleTheme);
     
-    // Login modal
     loginBtn.addEventListener('click', showLogin);
     document.getElementById('closeLogin').addEventListener('click', hideLogin);
     
-    // Login form
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('email').value;
@@ -487,15 +463,12 @@ document.addEventListener('DOMContentLoaded', function() {
         login(email, password);
     });
     
-    // Logout
     logoutBtn.addEventListener('click', logout);
     
-    // Toggle letter form
     toggleFormBtn.addEventListener('click', function() {
         if (letterForm.style.display === 'none' || letterForm.style.display === '') {
             letterForm.style.display = 'block';
             this.innerHTML = '<i class="fas fa-minus"></i> Cancel';
-            // Generate new letter number
             document.getElementById('letterNumber').value = generateLetterNumber();
         } else {
             letterForm.style.display = 'none';
@@ -504,14 +477,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Cancel form
     document.getElementById('cancelForm').addEventListener('click', function() {
         letterForm.style.display = 'none';
         toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> New Letter';
         createLetterForm.reset();
     });
     
-    // Create letter form
     createLetterForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -528,13 +499,10 @@ document.addEventListener('DOMContentLoaded', function() {
         createLetter(letterData);
     });
     
-    // Search
     searchInput.addEventListener('input', searchLetters);
     
-    // Preview modal close
     document.getElementById('closePreview').addEventListener('click', hidePreview);
     
-    // Close modals when clicking outside
     window.addEventListener('click', function(event) {
         if (event.target === loginModal) {
             hideLogin();
@@ -544,19 +512,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Load letters for all users
+    loadLetters();
+    
     // Firebase auth state listener
     auth.onAuthStateChanged(function(user) {
         updateUIForUser(user);
-        if (user) {
-            loadLetters();
-        } else {
-            letters = [];
-            filteredLetters = [];
-            lettersGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Please login to view letters.</p>';
-            pagination.innerHTML = '';
-        }
         
-        // Hide loading screen
         setTimeout(() => {
             loadingScreen.style.opacity = '0';
             setTimeout(() => {
@@ -564,6 +526,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         }, 1000);
     });
+    
+    // Login link in loginMessage
+    const loginLink = document.getElementById('loginLink');
+    if (loginLink) {
+        loginLink.addEventListener('click', showLogin);
+    }
 });
 
 // Make functions globally available for onclick handlers

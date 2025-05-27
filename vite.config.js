@@ -3,9 +3,8 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     outDir: 'dist',
-    minify: 'esbuild', // Use esbuild for minification (default, fast)
+    minify: 'esbuild',
     rollupOptions: {
-      // Ensure external scripts (CDNs) are not bundled
       external: [
         'https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js',

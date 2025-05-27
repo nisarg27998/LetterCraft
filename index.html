@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LetterCraft - Professional Letter Management</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <!-- Loading Screen -->
@@ -44,7 +44,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Login to LetterCraft</h2>
-                    <button class="close-btn" id="closeLogin">&times;</button>
+                    <button class="close-btn" id="closeLogin">×</button>
                 </div>
                 <form id="loginForm">
                     <div class="form-group">
@@ -59,6 +59,11 @@
                 </form>
                 <div id="loginError" class="error-message"></div>
             </div>
+        </div>
+
+        <!-- Login Message for Unauthenticated Users -->
+        <div id="loginMessage" class="login-message" style="display: none; text-align: center; padding: 1rem;">
+            <p>Please <a href="#login" id="loginLink">log in</a> to create letters.</p>
         </div>
 
         <!-- Admin Panel -->
@@ -156,7 +161,7 @@
                     <button id="downloadDocx" class="btn btn-secondary" style="display: none;">
                         <i class="fas fa-file-word"></i> DOCX
                     </button>
-                    <button class="close-btn" id="closePreview">&times;</button>
+                    <button class="close-btn" id="closePreview">×</button>
                 </div>
             </div>
             <div class="modal-body">
@@ -169,14 +174,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
-    
+
     <!-- PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
+
     <!-- DOCX Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.min.js"></script>
-    
-    <!-- Firebase Configuration (Load before app.js) -->
+
+    <!-- App Scripts -->
     <script type="module" src="/main.js"></script>
 </body>
 </html>
