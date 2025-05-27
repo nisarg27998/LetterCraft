@@ -548,7 +548,6 @@
     <script>
       // Firebase Configuration (You need to replace with your own config)
       const firebaseConfig = {
-        // Replace with your Firebase config
         apiKey: "AIzaSyCQftta-eSPlu9K66wVhhy3B_5BUQ2-TyI",
         authDomain: "lettercraft-c71f7.firebaseapp.com",
         projectId: "lettercraft-c71f7",
@@ -562,11 +561,12 @@
       try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-        updateFirebaseStatus(true);
+
+        // Test Firebase connection
+        testFirebaseConnection();
       } catch (error) {
         console.error("Firebase initialization error:", error);
         updateFirebaseStatus(false);
-        // Fallback to local storage if Firebase fails
         useLocalStorage = true;
       }
 
@@ -613,9 +613,35 @@
           statusEl.textContent = "Firebase: Connected";
           statusEl.className = "firebase-status firebase-connected";
         } else {
-          statusEl.textContent = "Firebase: Disconnected";
+          statusEl.textContent = "Firebase: Disconnected (Using Local Storage)";
           statusEl.className = "firebase-status firebase-disconnected";
           useLocalStorage = true;
+        }
+      }
+
+      async function testFirebaseConnection() {
+        try {
+          // Try to read from Firestore to test connection and permissions
+          await db.collection("letters").limit(1).get();
+          updateFirebaseStatus(true);
+          console.log("Firebase connection successful");
+        } catch (error) {
+          console.error("Firebase connection/permission error:", error);
+          updateFirebaseStatus(false);
+          useLocalStorage = true;
+
+          // Show specific error message
+          if (error.code === "permission-denied") {
+            showAlert(
+              "Firebase permissions denied. Using local storage instead. Please check Firestore rules.",
+              "error"
+            );
+          } else {
+            showAlert(
+              "Firebase connection failed. Using local storage instead.",
+              "error"
+            );
+          }
         }
       }
 
