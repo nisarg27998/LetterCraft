@@ -1,3 +1,5 @@
+import { firebaseConfig } from './firebaseConfig.js';
+
 // Initialize Firebase using external config
 if (typeof window.firebaseConfig === 'undefined') {
     console.error('Firebase configuration not found! Please ensure firebaseConfig.js is loaded.');
@@ -5,8 +7,12 @@ if (typeof window.firebaseConfig === 'undefined') {
 } else {
     firebase.initializeApp(window.firebaseConfig);
 }
+
+
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+
 
 // Global Variables
 let currentUser = null;
