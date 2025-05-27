@@ -337,82 +337,55 @@ function generatePDF(letter) {
 // DOCX Generation (Admin only)
 function generateDOCX(letter) {
     if (!isAdmin) return;
-    
-    if (typeof docx === 'undefined') {
-        console.error('docx library not loaded.');
-        alert('DOCX generation failed. Please try again later.');
-        return;
-    }
-    
-    const doc = new docx.Document({
+
+    const doc = new Document({
         sections: [{
             properties: {},
             children: [
-                new docx.Paragraph({
+                new Paragraph({
                     children: [
-                        new docx.TextRun(`Letter No: ${letter.letterNumber}`),
-                        new docx.TextRun(`\t\t\t\tDate: ${formatDate(letter.letterDate)}`),
+                        new TextRun(`Letter No: ${letter.letterNumber}`),
+                        new TextRun(`\t\t\t\tDate: ${formatDate(letter.letterDate)}`),
                     ],
                 }),
-                new docx.Paragraph({
-                    children: [new docx.TextRun("")],
-                }),
-                new docx.Paragraph({
-                    children: [new docx.TextRun(letter.salutation)],
-                }),
-                new docx.Paragraph({
-                    children: [new docx.TextRun("")],
-                }),
-                new docx.Paragraph({
+                new Paragraph({ children: [new TextRun("")] }),
+                new Paragraph({ children: [new TextRun(letter.salutation)] }),
+                new Paragraph({ children: [new TextRun("")] }),
+                new Paragraph({
                     alignment: docx.AlignmentType.CENTER,
                     children: [
-                        new docx.TextRun({
+                        new TextRun({
                             text: `Subject: ${letter.subject}`,
                             bold: true,
                             underline: {},
                         }),
                     ],
                 }),
-                new docx.Paragraph({
-                    children: [new docx.TextRun("")],
-                }),
-                new docx.Paragraph({
-                    children: [new docx.TextRun(letter.mainBody)],
-                }),
+                new Paragraph({ children: [new TextRun("")] }),
+                new Paragraph({ children: [new TextRun(letter.mainBody)] }),
             ],
         }],
     });
-    
+
     if (letter.specialRemarks) {
         doc.sections[0].children.push(
-            new docx.Paragraph({
-                children: [new docx.TextRun("")],
+            new Paragraph({ children: [new TextRun("")] }),
+            new Paragraph({
+                children: [new TextRun({ text: "Special Remarks:", bold: true })],
             }),
-            new docx.Paragraph({
-                children: [
-                    new docx.TextRun({
-                        text: "Special Remarks:",
-                        bold: true,
-                    }),
-                ],
-            }),
-            new docx.Paragraph({
-                children: [new docx.TextRun(letter.specialRemarks)],
-            })
+            new Paragraph({ children: [new TextRun(letter.specialRemarks)] })
         );
     }
-    
+
     doc.sections[0].children.push(
-        new docx.Paragraph({
-            children: [new docx.TextRun("")],
-        }),
-        new docx.Paragraph({
+        new Paragraph({ children: [new TextRun("")] }),
+        new Paragraph({
             alignment: docx.AlignmentType.RIGHT,
-            children: [new docx.TextRun(letter.closing)],
+            children: [new TextRun(letter.closing)],
         })
     );
-    
-    docx.Packer.toBlob(doc).then(blob => {
+
+    Packer.toBlob(doc).then(blob => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -424,6 +397,7 @@ function generateDOCX(letter) {
         alert('Failed to generate DOCX file.');
     });
 }
+
 
 // Utility Functions
 function formatDate(dateString) {
