@@ -298,6 +298,11 @@ function initializeEditors() {
     tinymce.init({
         selector: '.tinymce-editor',
         height: 300,
+        setup: function(editor) {
+            editor.on('change', function() {
+                editor.save(); // Sync content back to textarea
+            });
+        },
         menubar: false,
         plugins: [
             'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
@@ -322,6 +327,11 @@ function showLetterPreview(letterId) {
             <div class="letter-meta">
                 <div>Letter No: ${letter.letterNumber}</div>
                 <div>Date: ${formatDate(letter.letterDate)}</div>
+            </div>
+            
+            <div class="sender-recipient">
+                <div>From: ${letter.senderName}</div>
+                <div>To: ${letter.recipientName}</div>
             </div>
             
             <div style="margin: 2rem 0;">
@@ -355,6 +365,7 @@ function showLetterPreview(letterId) {
     const printLetter = document.getElementById('printLetter');
     const editLetter = document.getElementById('editLetter');
     const deleteLetter = document.getElementById('deleteLetter');
+    const downloadPdf = document.getElementById('downloadPdf');  // Add this line
     
     if (isAdmin) {
         editLetter.style.display = 'inline-flex';
@@ -364,6 +375,7 @@ function showLetterPreview(letterId) {
     }
     
     printLetter.onclick = () => window.print();
+    downloadPdf.onclick = () => generatePDF(letter);  // Add this line
 }
 
 function hidePreview() {
@@ -479,6 +491,15 @@ async function editLetterForm(letter) {
 async function createLetterHandler(e) {
     e.preventDefault();
     
+    // Get TinyMCE content
+    const mainBodyContent = tinymce.get('mainBody').getContent().trim();
+    
+    // Validate required fields
+    if (!mainBodyContent) {
+        showErrorMessage('Letter body is required');
+        return;
+    }
+    
     const salutationSelect = document.getElementById('salutation');
     const customSalutation = document.getElementById('customSalutation');
     const salutation = salutationSelect.value === 'custom' ? customSalutation.value : salutationSelect.value;
@@ -492,9 +513,11 @@ async function createLetterHandler(e) {
         letterDate: document.getElementById('letterDate').value,
         salutation: salutation,
         subject: document.getElementById('subject').value,
-        mainBody: tinymce.get('mainBody').getContent(),
+        mainBody: mainBodyContent,
         specialRemarks: tinymce.get('specialRemarks').getContent(),
-        closing: closing
+        closing: closing,
+        senderName: document.getElementById('senderName').value,
+        recipientName: document.getElementById('recipientName').value,
     };
     
     await createLetter(letterData);
@@ -537,47 +560,30 @@ function generatePDF(letter) {
     const doc = new jsPDF();
     
     doc.setFont('times');
-    
     doc.setFontSize(12);
+    
+    // Letter header
     doc.text(`Letter No: ${letter.letterNumber}`, 20, 20);
     doc.text(`Date: ${formatDate(letter.letterDate)}`, 150, 20);
     
-    doc.setFontSize(12);
-    doc.text(letter.salutation, 20, 40);
+    // Sender and recipient
+    doc.text(`From: ${letter.senderName}`, 20, 40);
+    doc.text(`To: ${letter.recipientName}`, 20, 50);
     
-    doc.setFontSize(12);
+    // Subject (centered)
     doc.setFont('times', 'bold');
     const subjectText = `Subject: ${letter.subject}`;
     const subjectWidth = doc.getTextWidth(subjectText);
     const pageWidth = doc.internal.pageSize.getWidth();
-    doc.text(subjectText, (pageWidth - subjectWidth) / 2, 60);
+    doc.text(subjectText, (pageWidth - subjectWidth) / 2, 70);
     
+    // Main content
     doc.setFont('times', 'normal');
+    const mainBodyLines = doc.splitTextToSize(letter.mainBody, 170);
+    doc.text(mainBodyLines, 20, 90);
     
-    // Convert HTML to plain text for PDF
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = letter.mainBody;
-    const plainBody = tempDiv.textContent || tempDiv.innerText;
-    const splitBody = doc.splitTextToSize(plainBody, 170);
-    doc.text(splitBody, 20, 80);
-    
-    let yPosition = 80 + (splitBody.length * 5);
-    
-    if (letter.specialRemarks) {
-        yPosition += 10;
-        doc.setFont('times', 'bold');
-        doc.text('Special Remarks:', 20, yPosition);
-        doc.setFont('times', 'normal');
-        yPosition += 7;
-        const splitRemarks = doc.splitTextToSize(letter.specialRemarks, 170);
-        doc.text(splitRemarks, 20, yPosition);
-        yPosition += splitRemarks.length * 5;
-    }
-    
-    yPosition += 20;
-    doc.text(letter.closing, 130, yPosition);
-    
-    doc.save(`Letter_${letter.letterNumber}.pdf`);
+    // Save the PDF
+    doc.save(`Letter-${letter.letterNumber}.pdf`);
 }
 
 // Utility Functions

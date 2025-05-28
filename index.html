@@ -58,11 +58,17 @@
             <form id="loginForm">
               <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" required />
+                <div class="input-icon">
+                    <input type="email" id="email" required />
+                    <i class="fas fa-envelope"></i>
+                </div>
               </div>
               <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" required />
+                <div class="input-icon">
+                    <input type="password" id="password" required />
+                    <i class="fas fa-key"></i>
+                </div>
               </div>
               <button type="submit" class="btn btn-primary btn-full">
                 Login
@@ -108,6 +114,17 @@
               </div>
             </div>
 
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="senderName">From</label>
+                    <input type="text" id="senderName" required placeholder="Sender's name" />
+                </div>
+                <div class="form-group">
+                    <label for="recipientName">To</label>
+                    <input type="text" id="recipientName" required placeholder="Recipient's name" />
+                </div>
+            </div>
+
             <div class="form-group">
               <label for="salutation">Salutation</label>
               <select id="salutation" class="form-select" required>
@@ -136,12 +153,22 @@
 
             <div class="form-group">
               <label for="mainBody">Main Body</label>
-              <textarea id="mainBody" class="tinymce-editor" rows="8" required></textarea>
+              <textarea 
+                  id="mainBody" 
+                  name="mainBody"
+                  class="tinymce-editor" 
+                  rows="8"
+              ></textarea>
             </div>
 
             <div class="form-group">
               <label for="specialRemarks">Special Remarks</label>
-              <textarea id="specialRemarks" class="tinymce-editor" rows="3"></textarea>
+              <textarea 
+                  id="specialRemarks"
+                  name="specialRemarks" 
+                  class="tinymce-editor" 
+                  rows="3"
+              ></textarea>
             </div>
 
             <div class="form-group">
@@ -212,7 +239,7 @@
           <h2>Letter Preview</h2>
           <div class="modal-actions">
             <button id="downloadPdf" class="btn btn-primary">
-              <i class="fas fa-file-pdf"></i> PDF
+              <i class="fas fa-file-pdf"></i> Download PDF
             </button>
             <button id="printLetter" class="btn btn-secondary">
               <i class="fas fa-print"></i> Print

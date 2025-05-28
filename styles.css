@@ -557,6 +557,11 @@ body {
   color: var(--text-color);
 }
 
+.search-bar input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
 .search-bar i {
   position: absolute;
   right: 1rem;
@@ -793,4 +798,34 @@ body {
 
 [data-theme="dark"] .tox .tox-toolbar {
     background-color: var(--bg-color) !important;
+}
+
+.input-icon {
+    position: relative;
+}
+
+.input-icon input {
+    padding-left: 35px;
+}
+
+.input-icon i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary-text);
+}
+
+[data-theme="dark"] .input-icon i {
+    color: var(--text-color);
+}
+
+.sender-recipient {
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.sender-recipient div {
+    margin: 0.5rem 0;
 }

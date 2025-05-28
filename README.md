@@ -2,6 +2,16 @@
 
 A professional letter creation and management system built with HTML, CSS, JavaScript, Firebase, and Vite for optimized builds.
 
+## Latest Updates (v1.2.0)
+- Added Rich Text Editor integration with TinyMCE
+- Improved PDF generation with proper formatting
+- Added sender and recipient fields
+- Fixed mobile view icon visibility
+- Enhanced search box focus color
+- Fixed form validation issues
+- Improved dark mode compatibility
+- Enhanced success/error messages
+
 ## Latest Updates (v1.1.0)
 - Added Rich Text Editor for letter content
 - Improved loading screens and animations
