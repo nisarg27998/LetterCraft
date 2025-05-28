@@ -28,7 +28,8 @@ A professional letter creation and management system built with HTML, CSS, JavaS
 - Mobile-friendly design
 - Real-time updates
 
-## Demo
+## Live Demo
+Visit [LetterCraft](https://lettercraft-c71f7.web.app)
 
 ### Admin Access
 
@@ -235,6 +236,9 @@ lettercraft/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+Nisarg Panchal
 
 ## Support
 
