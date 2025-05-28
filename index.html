@@ -10,6 +10,10 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
+    <script 
+    src="https://cdn.tiny.cloud/1/${process.env.TINYMCE_API_KEY}/tinymce/6/tinymce.min.js" 
+    referrerpolicy="origin">
+</script>
   </head>
   <body>
     <!-- Loading Screen -->
@@ -84,8 +88,10 @@
       <div id="adminPanel" class="admin-panel" style="display: none">
         <div class="panel-header">
           <h2>Create New Letter</h2>
-          <button id="toggleForm" class="btn btn-secondary">
-            <i class="fas fa-plus"></i> New Letter
+          <button id="toggleForm" class="btn btn-primary btn-toggle">
+            <i class="fas fa-plus"></i>
+            <span class="new-text">New Letter</span>
+            <span class="cancel-text">Cancel</span>
           </button>
         </div>
 
@@ -130,12 +136,12 @@
 
             <div class="form-group">
               <label for="mainBody">Main Body</label>
-              <textarea id="mainBody" rows="8" required></textarea>
+              <textarea id="mainBody" class="tinymce-editor" rows="8" required></textarea>
             </div>
 
             <div class="form-group">
               <label for="specialRemarks">Special Remarks</label>
-              <textarea id="specialRemarks" rows="3"></textarea>
+              <textarea id="specialRemarks" class="tinymce-editor" rows="3"></textarea>
             </div>
 
             <div class="form-group">
@@ -208,11 +214,13 @@
             <button id="downloadPdf" class="btn btn-primary">
               <i class="fas fa-file-pdf"></i> PDF
             </button>
-            <button
-              id="deleteLetter"
-              class="btn btn-danger"
-              style="display: none"
-            >
+            <button id="printLetter" class="btn btn-secondary">
+              <i class="fas fa-print"></i> Print
+            </button>
+            <button id="editLetter" class="btn btn-secondary" style="display: none">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button id="deleteLetter" class="btn btn-danger" style="display: none">
               <i class="fas fa-trash"></i> Delete
             </button>
             <button class="close-btn" id="closePreview">×</button>
@@ -220,6 +228,52 @@
         </div>
         <div class="modal-body">
           <div id="letterPreview" class="letter-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Delete Letter</h2>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete this letter? This action cannot be undone.</p>
+          <div class="modal-actions" style="margin-top: 1rem;">
+            <button id="confirmDelete" class="btn btn-danger">Delete</button>
+            <button id="cancelDelete" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Message Modal -->
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header success">
+          <h2><i class="fas fa-check-circle"></i> Success</h2>
+        </div>
+        <div class="modal-body">
+          <p id="successMessage"></p>
+          <div class="modal-actions" style="margin-top: 1rem;">
+            <button id="successOk" class="btn btn-primary">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message Modal -->
+    <div id="errorModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header error">
+          <h2><i class="fas fa-exclamation-circle"></i> Error</h2>
+        </div>
+        <div class="modal-body">
+          <p id="errorMessage"></p>
+          <div class="modal-actions" style="margin-top: 1rem;">
+            <button id="errorOk" class="btn btn-danger">OK</button>
+          </div>
         </div>
       </div>
     </div>

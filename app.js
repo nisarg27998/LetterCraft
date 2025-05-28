@@ -115,6 +115,7 @@ async function login(email, password) {
     try {
         await auth.signInWithEmailAndPassword(email, password);
         hideLogin();
+        showSuccessMessage('Logged in successfully!');
     } catch (error) {
         const errorDiv = document.getElementById('loginError');
         errorDiv.textContent = error.message;
@@ -125,8 +126,10 @@ async function login(email, password) {
 async function logout() {
     try {
         await auth.signOut();
+        showSuccessMessage('Logged out successfully!');
     } catch (error) {
         console.error('Logout error:', error);
+        showErrorMessage('Failed to logout. Please try again.');
     }
 }
 
@@ -260,13 +263,56 @@ async function createLetter(letterData) {
         
         await loadLetters();
         
-        alert('Letter created successfully!');
+        showSuccessMessage('Letter has been successfully created');
     } catch (error) {
         console.error('Error creating letter:', error);
-        alert('Error creating letter. Please try again.');
+        showErrorMessage('Failed to create letter. Please try again.');
     }
 }
 
+async function updateLetter(letterId, letterData) {
+    try {
+        await db.collection('letters').doc(letterId).update(letterData);
+        
+        // Hide form and reset
+        letterForm.classList.remove('show');
+        toggleFormBtn.classList.remove('active');
+        setTimeout(() => {
+            letterForm.style.display = 'none';
+            createLetterForm.reset();
+            // Reset custom inputs
+            document.getElementById('customSalutation').classList.remove('show');
+            document.getElementById('customClosing').classList.remove('show');
+        }, 300);
+        
+        await loadLetters();
+        showSuccessMessage('Letter has been successfully updated');
+    } catch (error) {
+        console.error('Error updating letter:', error);
+        showErrorMessage('Failed to update letter. Please try again.');
+    }
+}
+
+// Initialize TinyMCE editors
+function initializeEditors() {
+    tinymce.init({
+        selector: '.tinymce-editor',
+        height: 300,
+        menubar: false,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
+            'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'table', 'code', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks | ' +
+            'bold italic underline strikethrough | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | help',
+        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px }'
+    });
+}
+
+// Update the letter preview function to handle HTML content
 function showLetterPreview(letterId) {
     const letter = letters.find(l => l.id === letterId);
     if (!letter) return;
@@ -287,13 +333,13 @@ function showLetterPreview(letterId) {
             </div>
             
             <div class="letter-body">
-                ${letter.mainBody.replace(/\n/g, '<br>')}
+                ${letter.mainBody}
             </div>
             
             ${letter.specialRemarks ? `
                 <div style="margin: 2rem 0;">
                     <strong>Special Remarks:</strong><br>
-                    ${letter.specialRemarks.replace(/\n/g, '<br>')}
+                    ${letter.specialRemarks}
                 </div>
             ` : ''}
             
@@ -306,17 +352,18 @@ function showLetterPreview(letterId) {
     letterPreview.innerHTML = previewHTML;
     previewModal.style.display = 'block';
     
-    const downloadPdf = document.getElementById('downloadPdf');
+    const printLetter = document.getElementById('printLetter');
+    const editLetter = document.getElementById('editLetter');
     const deleteLetter = document.getElementById('deleteLetter');
     
-    if (downloadPdf) {
-        downloadPdf.onclick = () => generatePDF(letter);
+    if (isAdmin) {
+        editLetter.style.display = 'inline-flex';
+        deleteLetter.style.display = 'inline-flex';
+        editLetter.onclick = () => editLetterForm(letter);
+        deleteLetter.onclick = () => showDeleteConfirmation(letter.id);
     }
     
-    if (deleteLetter) {
-        deleteLetter.style.display = isAdmin ? 'inline-flex' : 'none';
-        deleteLetter.onclick = () => confirmDeleteLetter(letter.id);
-    }
+    printLetter.onclick = () => window.print();
 }
 
 function hidePreview() {
@@ -324,22 +371,164 @@ function hidePreview() {
     letterPreview.innerHTML = '';
 }
 
-async function confirmDeleteLetter(letterId) {
+function showSuccessMessage(message) {
+    const successModal = document.getElementById('successModal');
+    const successMessage = document.getElementById('successMessage');
+    const successOk = document.getElementById('successOk');
+    
+    successMessage.textContent = message;
+    successModal.style.display = 'block';
+    
+    successOk.onclick = () => {
+        successModal.style.display = 'none';
+    };
+}
+
+function showErrorMessage(message) {
+    const errorModal = document.getElementById('errorModal');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorOk = document.getElementById('errorOk');
+    
+    errorMessage.textContent = message;
+    errorModal.style.display = 'block';
+    
+    errorOk.onclick = () => {
+        errorModal.style.display = 'none';
+    };
+}
+
+function showDeleteConfirmation(letterId) {
     if (!isAdmin) return;
     
-    const confirmed = confirm('Are you sure you want to delete this letter? This action cannot be undone.');
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
     
-    if (confirmed) {
+    deleteModal.style.display = 'block';
+    
+    confirmDelete.onclick = async () => {
         try {
             await db.collection('letters').doc(letterId).delete();
-            hidePreview();
+            deleteModal.style.display = 'none';
+            previewModal.style.display = 'none';
             await loadLetters();
-            alert('Letter deleted successfully!');
+            showSuccessMessage('Letter has been successfully deleted');
         } catch (error) {
             console.error('Error deleting letter:', error);
-            alert('Error deleting letter. Please try again.');
+            showErrorMessage('Failed to delete letter. Please try again.');
         }
+    };
+    
+    cancelDelete.onclick = () => {
+        deleteModal.style.display = 'none';
+    };
+}
+
+async function editLetterForm(letter) {
+    // Hide preview modal
+    previewModal.style.display = 'none';
+    
+    // Show form with letter data
+    letterForm.style.display = 'block';
+    setTimeout(() => {
+        letterForm.classList.add('show');
+        toggleFormBtn.classList.add('active');
+    }, 10);
+    
+    // Populate form fields
+    document.getElementById('letterNumber').value = letter.letterNumber;
+    document.getElementById('letterDate').value = letter.letterDate;
+    
+    // Handle salutation
+    const salutationSelect = document.getElementById('salutation');
+    const customSalutation = document.getElementById('customSalutation');
+    if (salutationSelect.querySelector(`option[value="${letter.salutation}"]`)) {
+        salutationSelect.value = letter.salutation;
+        customSalutation.classList.remove('show');
+    } else {
+        salutationSelect.value = 'custom';
+        customSalutation.value = letter.salutation;
+        customSalutation.classList.add('show');
     }
+    
+    document.getElementById('subject').value = letter.subject;
+    tinymce.get('mainBody').setContent(letter.mainBody);
+    tinymce.get('specialRemarks').setContent(letter.specialRemarks || '');
+    
+    // Handle closing
+    const closingSelect = document.getElementById('closing');
+    const customClosing = document.getElementById('customClosing');
+    if (closingSelect.querySelector(`option[value="${letter.closing}"]`)) {
+        closingSelect.value = letter.closing;
+        customClosing.classList.remove('show');
+    } else {
+        closingSelect.value = 'custom';
+        customClosing.value = letter.closing;
+        customClosing.classList.add('show');
+    }
+    
+    // Store the letter ID for updating
+    createLetterForm.setAttribute('data-editing-id', letter.id);
+    
+    // Update form submit handler
+    createLetterForm.removeEventListener('submit', createLetterHandler);
+    createLetterForm.addEventListener('submit', updateLetterHandler);
+}
+
+// Separate handlers for create and update
+async function createLetterHandler(e) {
+    e.preventDefault();
+    
+    const salutationSelect = document.getElementById('salutation');
+    const customSalutation = document.getElementById('customSalutation');
+    const salutation = salutationSelect.value === 'custom' ? customSalutation.value : salutationSelect.value;
+    
+    const closingSelect = document.getElementById('closing');
+    const customClosing = document.getElementById('customClosing');
+    const closing = closingSelect.value === 'custom' ? customClosing.value : closingSelect.value;
+    
+    const letterData = {
+        letterNumber: document.getElementById('letterNumber').value,
+        letterDate: document.getElementById('letterDate').value,
+        salutation: salutation,
+        subject: document.getElementById('subject').value,
+        mainBody: tinymce.get('mainBody').getContent(),
+        specialRemarks: tinymce.get('specialRemarks').getContent(),
+        closing: closing
+    };
+    
+    await createLetter(letterData);
+}
+
+async function updateLetterHandler(e) {
+    e.preventDefault();
+    const letterId = createLetterForm.getAttribute('data-editing-id');
+    
+    const salutationSelect = document.getElementById('salutation');
+    const customSalutation = document.getElementById('customSalutation');
+    const salutation = salutationSelect.value === 'custom' ? customSalutation.value : salutationSelect.value;
+    
+    const closingSelect = document.getElementById('closing');
+    const customClosing = document.getElementById('customClosing');
+    const closing = closingSelect.value === 'custom' ? customClosing.value : closingSelect.value;
+    
+    const letterData = {
+        letterNumber: document.getElementById('letterNumber').value,
+        letterDate: document.getElementById('letterDate').value,
+        salutation: salutation,
+        subject: document.getElementById('subject').value,
+        mainBody: tinymce.get('mainBody').getContent(),
+        specialRemarks: tinymce.get('specialRemarks').getContent(),
+        closing: closing,
+        updatedAt: new Date().toISOString()
+    };
+    
+    await updateLetter(letterId, letterData);
+    
+    // Reset form to create mode
+    createLetterForm.removeAttribute('data-editing-id');
+    createLetterForm.removeEventListener('submit', updateLetterHandler);
+    createLetterForm.addEventListener('submit', createLetterHandler);
 }
 
 // PDF Generation
@@ -364,7 +553,12 @@ function generatePDF(letter) {
     doc.text(subjectText, (pageWidth - subjectWidth) / 2, 60);
     
     doc.setFont('times', 'normal');
-    const splitBody = doc.splitTextToSize(letter.mainBody, 170);
+    
+    // Convert HTML to plain text for PDF
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = letter.mainBody;
+    const plainBody = tempDiv.textContent || tempDiv.innerText;
+    const splitBody = doc.splitTextToSize(plainBody, 170);
     doc.text(splitBody, 20, 80);
     
     let yPosition = 80 + (splitBody.length * 5);
@@ -437,55 +631,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     logoutBtn.addEventListener('click', logout);
     
+    // Update the toggle form button click handler
     toggleFormBtn.addEventListener('click', function() {
         if (letterForm.style.display === 'none' || letterForm.style.display === '') {
+            // Show form
             letterForm.style.display = 'block';
-            this.innerHTML = '<i class="fas fa-minus"></i> Cancel';
+            setTimeout(() => letterForm.classList.add('show'), 10);
+            this.classList.add('active');
             document.getElementById('letterNumber').value = generateLetterNumber();
         } else {
+            // Hide form
+            letterForm.classList.remove('show');
+            this.classList.remove('active');
+            setTimeout(() => {
+                letterForm.style.display = 'none';
+                createLetterForm.reset();
+                // Reset custom inputs
+                document.getElementById('customSalutation').classList.remove('show');
+                document.getElementById('customClosing').classList.remove('show');
+            }, 300);
+        }
+    });
+    
+    // Update the cancel button handler
+    document.getElementById('cancelForm').addEventListener('click', function() {
+        letterForm.classList.remove('show');
+        toggleFormBtn.classList.remove('active');
+        setTimeout(() => {
             letterForm.style.display = 'none';
-            this.innerHTML = '<i class="fas fa-plus"></i> New Letter';
             createLetterForm.reset();
             // Reset custom inputs
             document.getElementById('customSalutation').classList.remove('show');
             document.getElementById('customClosing').classList.remove('show');
-        }
+        }, 300);
     });
     
-    document.getElementById('cancelForm').addEventListener('click', function() {
-        letterForm.style.display = 'none';
-        toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> New Letter';
-        createLetterForm.reset();
-        // Reset custom inputs
-        document.getElementById('customSalutation').classList.remove('show');
-        document.getElementById('customClosing').classList.remove('show');
-    });
-    
-    document.getElementById('createLetterForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Get salutation value
-        const salutationSelect = document.getElementById('salutation');
-        const customSalutation = document.getElementById('customSalutation');
-        const salutation = salutationSelect.value === 'custom' ? customSalutation.value : salutationSelect.value;
-        
-        // Get closing value
-        const closingSelect = document.getElementById('closing');
-        const customClosing = document.getElementById('customClosing');
-        const closing = closingSelect.value === 'custom' ? customClosing.value : closingSelect.value;
-        
-        const letterData = {
-            letterNumber: document.getElementById('letterNumber').value,
-            letterDate: document.getElementById('letterDate').value,
-            salutation: salutation,
-            subject: document.getElementById('subject').value,
-            mainBody: document.getElementById('mainBody').value,
-            specialRemarks: document.getElementById('specialRemarks').value,
-            closing: closing
-        };
-        
-        createLetter(letterData);
-    });
+    // Add create handler to form
+    createLetterForm.addEventListener('submit', createLetterHandler);
     
     searchInput.addEventListener('input', searchLetters);
     
@@ -520,9 +702,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginLink) {
         loginLink.addEventListener('click', showLogin);
     }
+    
+    initializeEditors();
 });
 
 // Make functions globally available for onclick handlers
 window.showLetterPreview = showLetterPreview;
-window.confirmDeleteLetter = confirmDeleteLetter;
+window.showDeleteConfirmation = showDeleteConfirmation;
 window.changePage = changePage;

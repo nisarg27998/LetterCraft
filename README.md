@@ -2,6 +2,15 @@
 
 A professional letter creation and management system built with HTML, CSS, JavaScript, Firebase, and Vite for optimized builds.
 
+## Latest Updates (v1.1.0)
+- Added Rich Text Editor for letter content
+- Improved loading screens and animations
+- Enhanced success/error messages
+- Added custom delete confirmations
+- Improved letter editing functionality
+- Added print functionality
+- Enhanced UI animations
+
 ## Features
 
 ✨ **Core Features:**
@@ -146,6 +155,18 @@ cd lettercraft
    firebase deploy
    ```
 3. Access your site at the provided URL (e.g., `https://lettercraft-c71f7.web.app`).
+
+## Environment Setup
+1. Create `.env` file in project root
+2. Add required environment variables:
+```env
+TINYMCE_API_KEY=your-api-key-here
+```
+
+## Security Notes
+- Environment variables are not committed to version control
+- API keys are stored securely
+- Firebase configuration is protected
 
 ## File Structure
 
