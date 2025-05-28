@@ -1,194 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LetterCraft - Professional Letter Management</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-</head>
-<body>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen">
-        <div class="loading-spinner">
-            <i class="fas fa-envelope"></i>
-            <h2>LetterCraft</h2>
-            <div class="spinner"></div>
-        </div>
+      <div class="loading-spinner">
+        <i class="fas fa-envelope"></i>
+        <h2>LetterCraft</h2>
+        <div class="spinner"></div>
+      </div>
     </div>
 
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <i class="fas fa-envelope-open-text"></i>
-                <span>LetterCraft</span>
-            </div>
-            <div class="nav-controls">
-                <button id="themeToggle" class="theme-toggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <div id="userInfo" class="user-info" style="display: none;">
-                    <span id="userEmail">Admin</span>
-                    <button id="logoutBtn" class="btn btn-outline">Logout</button>
-                </div>
-                <button id="loginBtn" class="btn btn-primary">Login</button>
-            </div>
+      <div class="nav-container">
+        <div class="nav-brand">
+          <i class="fas fa-envelope-open-text"></i>
+          <span>LetterCraft</span>
         </div>
+        <div class="nav-controls">
+          <button id="themeToggle" class="theme-toggle">
+            <i class="fas fa-moon"></i>
+          </button>
+          <div id="userInfo" class="user-info" style="display: none">
+            <span id="userEmail">Admin</span>
+            <button id="logoutBtn" class="btn btn-outline">Logout</button>
+          </div>
+          <button id="loginBtn" class="btn btn-primary">Login</button>
+        </div>
+      </div>
     </nav>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Login Modal -->
-        <div id="loginModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Login to LetterCraft</h2>
-                    <button class="close-btn" id="closeLogin">×</button>
-                </div>
-                <div class="modal-body">
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" id="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full">Login</button>
-                    </form>
-                    <div id="loginError" class="error-message"></div>
-                </div>
-            </div>
+      <!-- Login Modal -->
+      <div id="loginModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Login to LetterCraft</h2>
+            <button class="close-btn" id="closeLogin">×</button>
+          </div>
+          <div class="modal-body">
+            <form id="loginForm">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required />
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required />
+              </div>
+              <button type="submit" class="btn btn-primary btn-full">
+                Login
+              </button>
+            </form>
+            <div id="loginError" class="error-message"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Login Message for Unauthenticated Users -->
+      <div
+        id="loginMessage"
+        class="login-message"
+        style="display: none; text-align: center; padding: 1rem"
+      >
+        <p>
+          Please <a href="#login" id="loginLink">log in</a> to create letters.
+        </p>
+      </div>
+
+      <!-- Admin Panel -->
+      <div id="adminPanel" class="admin-panel" style="display: none">
+        <div class="panel-header">
+          <h2>Create New Letter</h2>
+          <button id="toggleForm" class="btn btn-secondary">
+            <i class="fas fa-plus"></i> New Letter
+          </button>
         </div>
 
-        <!-- Login Message for Unauthenticated Users -->
-        <div id="loginMessage" class="login-message" style="display: none; text-align: center; padding: 1rem;">
-            <p>Please <a href="#login" id="loginLink">log in</a> to create letters.</p>
+        <div id="letterForm" class="letter-form" style="display: none">
+          <form id="createLetterForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="letterNumber">Letter Number</label>
+                <input type="text" id="letterNumber" required />
+              </div>
+              <div class="form-group">
+                <label for="letterDate">Letter Date</label>
+                <input type="date" id="letterDate" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="salutation">Salutation</label>
+              <select id="salutation" class="form-select" required>
+                <option value="">Select Salutation</option>
+                <option value="Dear Sir/Madam">Dear Sir/Madam</option>
+                <option value="Dear Sir">Dear Sir</option>
+                <option value="Dear Madam">Dear Madam</option>
+                <option value="Respected Sir/Madam">Respected Sir/Madam</option>
+                <option value="To Whom It May Concern">
+                  To Whom It May Concern
+                </option>
+                <option value="custom">Custom...</option>
+              </select>
+              <input
+                type="text"
+                id="customSalutation"
+                class="custom-input"
+                placeholder="Enter custom salutation"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="subject">Subject</label>
+              <input type="text" id="subject" required />
+            </div>
+
+            <div class="form-group">
+              <label for="mainBody">Main Body</label>
+              <textarea id="mainBody" rows="8" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="specialRemarks">Special Remarks</label>
+              <textarea id="specialRemarks" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="closing">Closing</label>
+              <select id="closing" class="form-select" required>
+                <option value="">Select Closing</option>
+                <option value="Sincerely yours">Sincerely yours</option>
+                <option value="Yours faithfully">Yours faithfully</option>
+                <option value="Yours truly">Yours truly</option>
+                <option value="Best regards">Best regards</option>
+                <option value="Regards">Regards</option>
+                <option value="custom">Custom...</option>
+              </select>
+              <input
+                type="text"
+                id="customClosing"
+                class="custom-input"
+                placeholder="Enter custom closing"
+              />
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Letter
+              </button>
+              <button type="button" id="cancelForm" class="btn btn-secondary">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Letters List -->
+      <div class="letters-section">
+        <div class="section-header">
+          <h2>Letters</h2>
+          <div class="search-bar">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search letters..."
+            />
+            <i class="fas fa-search"></i>
+          </div>
         </div>
 
-        <!-- Admin Panel -->
-        <div id="adminPanel" class="admin-panel" style="display: none;">
-            <div class="panel-header">
-                <h2>Create New Letter</h2>
-                <button id="toggleForm" class="btn btn-secondary">
-                    <i class="fas fa-plus"></i> New Letter
-                </button>
-            </div>
-
-            <div id="letterForm" class="letter-form" style="display: none;">
-                <form id="createLetterForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="letterNumber">Letter Number</label>
-                            <input type="text" id="letterNumber" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="letterDate">Letter Date</label>
-                            <input type="date" id="letterDate" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="salutation">Salutation</label>
-                        <select id="salutation" class="form-select" required>
-                            <option value="">Select Salutation</option>
-                            <option value="Dear Sir/Madam">Dear Sir/Madam</option>
-                            <option value="Dear Sir">Dear Sir</option>
-                            <option value="Dear Madam">Dear Madam</option>
-                            <option value="Respected Sir/Madam">Respected Sir/Madam</option>
-                            <option value="To Whom It May Concern">To Whom It May Concern</option>
-                            <option value="custom">Custom...</option>
-                        </select>
-                        <input type="text" id="customSalutation" class="custom-input" placeholder="Enter custom salutation">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="subject">Subject</label>
-                        <input type="text" id="subject" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="mainBody">Main Body</label>
-                        <textarea id="mainBody" rows="8" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="specialRemarks">Special Remarks</label>
-                        <textarea id="specialRemarks" rows="3"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="closing">Closing</label>
-                        <select id="closing" class="form-select" required>
-                            <option value="">Select Closing</option>
-                            <option value="Sincerely yours">Sincerely yours</option>
-                            <option value="Yours faithfully">Yours faithfully</option>
-                            <option value="Yours truly">Yours truly</option>
-                            <option value="Best regards">Best regards</option>
-                            <option value="Regards">Regards</option>
-                            <option value="custom">Custom...</option>
-                        </select>
-                        <input type="text" id="customClosing" class="custom-input" placeholder="Enter custom closing">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save Letter
-                        </button>
-                        <button type="button" id="cancelForm" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </form>
-            </div>
+        <!-- Letters Loading -->
+        <div id="lettersLoading" class="letters-loading">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading letters...</p>
+          </div>
         </div>
 
-        <!-- Letters List -->
-        <div class="letters-section">
-            <div class="section-header">
-                <h2>Letters</h2>
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Search letters...">
-                    <i class="fas fa-search"></i>
-                </div>
-            </div>
+        <!-- Letters Grid -->
+        <div id="lettersGrid" class="letters-grid"></div>
 
-            <!-- Letters Loading -->
-            <div id="lettersLoading" class="letters-loading">
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <p>Loading letters...</p>
-                </div>
-            </div>
-
-            <!-- Letters Grid -->
-            <div id="lettersGrid" class="letters-grid"></div>
-
-            <!-- Pagination -->
-            <div id="pagination" class="pagination"></div>
-        </div>
+        <!-- Pagination -->
+        <div id="pagination" class="pagination"></div>
+      </div>
     </main>
 
     <!-- Letter Preview Modal -->
     <div id="previewModal" class="modal">
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <h2>Letter Preview</h2>
-                <div class="modal-actions">
-                    <button id="downloadPdf" class="btn btn-primary">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button id="deleteLetter" class="btn btn-danger" style="display: none;">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                    <button class="close-btn" id="closePreview">×</button>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div id="letterPreview" class="letter-preview"></div>
-            </div>
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h2>Letter Preview</h2>
+          <div class="modal-actions">
+            <button id="downloadPdf" class="btn btn-primary">
+              <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button
+              id="deleteLetter"
+              class="btn btn-danger"
+              style="display: none"
+            >
+              <i class="fas fa-trash"></i> Delete
+            </button>
+            <button class="close-btn" id="closePreview">×</button>
+          </div>
         </div>
+        <div class="modal-body">
+          <div id="letterPreview" class="letter-preview"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -200,6 +233,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- App Scripts -->
-    <script src="app.js"></script>
-</body>
+    <script type="module" src="./main.js"></script>
+  </body>
 </html>
