@@ -112,6 +112,12 @@ function updateUIForUser(user) {
         
         adminPanel.style.display = isAdmin ? 'block' : 'none';
         loginMessage.style.display = 'none';
+
+        // Show "Create Agenda" button for admin
+        const createAgendaBtn = document.getElementById('createAgendaBtn');
+        if (createAgendaBtn) {
+            createAgendaBtn.style.display = isAdmin ? 'inline-block' : 'none';
+        }
     } else {
         currentUser = null;
         isAdmin = false;
@@ -120,6 +126,12 @@ function updateUIForUser(user) {
         userInfo.style.display = 'none';
         adminPanel.style.display = 'none';
         loginMessage.style.display = 'block';
+
+        // Hide "Create Agenda" button for non-admin
+        const createAgendaBtn = document.getElementById('createAgendaBtn');
+        if (createAgendaBtn) {
+            createAgendaBtn.style.display = 'none';
+        }
     }
 }
 
@@ -188,16 +200,30 @@ function renderLetters() {
             </div>
             <h3 class="letter-subject">${letter.subject}</h3>
             <p class="letter-preview-text">${letter.mainBody.substring(0, 150)}${letter.mainBody.length > 150 ? '...' : ''}</p>
+            ${isAdmin ? `<input type="checkbox" class="agenda-checkbox" data-letter-id="${letter.id}" style="margin-top:10px;">` : ''}
         </div>
     `).join('');
 
     // Add event listeners to each card
     document.querySelectorAll('.letter-card').forEach(card => {
-        card.addEventListener('click', function() {
+        card.addEventListener('click', function(e) {
+            // Prevent preview if agenda checkbox was clicked
+            if (e.target.classList.contains('agenda-checkbox')) return;
             const letterId = this.getAttribute('data-letter-id');
             showLetterPreview(letterId);
         });
     });
+
+    // Add event listeners to agenda checkboxes to open preview
+    if (isAdmin) {
+        document.querySelectorAll('.agenda-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click event
+                const letterId = this.getAttribute('data-letter-id');
+                showLetterPreview(letterId);
+            });
+        });
+    }
 
     renderPagination();
 }
@@ -711,4 +737,43 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginLink) {
         loginLink.addEventListener('click', showLogin);
     }
+
+    // Show "Create Agenda" button for admin
+    if (isAdmin) {
+        document.getElementById('createAgendaBtn').style.display = 'inline-block';
+    }
+
+    // Handle agenda creation
+    document.getElementById('createAgendaBtn').addEventListener('click', function() {
+        // Show field selection modal
+        document.getElementById('agendaFieldModal').style.display = 'block';
+    });
+
+    // Cancel agenda field selection
+    document.getElementById('cancelAgendaFields').addEventListener('click', function() {
+        document.getElementById('agendaFieldModal').style.display = 'none';
+    });
+
+    // Generate agenda
+    document.getElementById('agendaFieldForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Get selected fields
+        const selectedFields = Array.from(document.querySelectorAll('input[name="fields"]:checked')).map(cb => cb.value);
+        // Get selected letters
+        const selectedLetterIds = Array.from(document.querySelectorAll('.agenda-checkbox:checked')).map(cb => cb.dataset.letterId);
+        const selectedLetters = letters.filter(l => selectedLetterIds.includes(l.id));
+        // Build agenda HTML
+        let agendaHtml = '<h2>Agenda</h2>';
+        selectedLetters.forEach((letter, idx) => {
+            agendaHtml += `<div class="agenda-letter"><h3>Item ${idx + 1}</h3><ul>`;
+            selectedFields.forEach(field => {
+                agendaHtml += `<li><strong>${field}:</strong> ${letter[field] || ''}</li>`;
+            });
+            agendaHtml += '</ul></div>';
+        });
+        // Show agenda (you can use a modal or new page)
+        const agendaWindow = window.open('', '_blank');
+        agendaWindow.document.write(`<html><head><title>Agenda</title></head><body>${agendaHtml}</body></html>`);
+        document.getElementById('agendaFieldModal').style.display = 'none';
+    });
 });

@@ -2,6 +2,14 @@
 
 A professional letter creation and management system built with HTML, CSS, JavaScript, Firebase, and Vite for optimized builds.
 
+## Latest Updates (v1.3.5)
+- Improved agenda modal styling and accessibility
+- Added and documented HTTP security headers (`X-Content-Type-Options`, `Cache-Control`)
+- Fixed module script MIME and deployment issues for Firebase Hosting
+- Enhanced admin-only agenda creation and preview features
+- General bug fixes and deployment improvements
+
+
 ## Latest Updates (v1.3.0)
 - Improved authentication error handling
 - Firestore rules updated for admin-only write access
