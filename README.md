@@ -66,7 +66,7 @@ Visit [LetterCraft](https://lettercraft-c71f7.web.app)
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/lettercraft.git
+git clone https://github.com/nisarg27998/lettercraft.git
 cd lettercraft
 ```
 
