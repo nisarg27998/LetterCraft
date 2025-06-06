@@ -1,6 +1,6 @@
 {
   "name": "lettercraft",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Professional letter creation and management system",
   "private": true,
   "scripts": {
@@ -24,5 +24,12 @@
     "type": "git",
     "url": "git+https://github.com/nisarg27998/LetterCraft.git"
   },
-  "homepage": "https://github.com/nisarg27998/LetterCraft#readme"
+  "homepage": "https://github.com/nisarg27998/LetterCraft#readme",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nisarg27998/LetterCraft/issues"
+  },
+  "dependencies": {
+    "firebase": "^11.9.0"
+  }
 }

@@ -1,4 +1,16 @@
 import { auth, db } from './firebaseConfig.js';
+import {
+  collection,
+  query,
+  orderBy,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp
+} from "firebase/firestore";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 // Global Variables
 let currentUser = null;
@@ -113,7 +125,7 @@ function updateUIForUser(user) {
 
 async function login(email, password) {
     try {
-        await auth.signInWithEmailAndPassword(email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         hideLogin();
         showSuccessMessage('Logged in successfully!');
     } catch (error) {
@@ -125,7 +137,7 @@ async function login(email, password) {
 
 async function logout() {
     try {
-        await auth.signOut();
+        await signOut(auth);
         showSuccessMessage('Logged out successfully!');
     } catch (error) {
         console.error('Logout error:', error);
@@ -137,15 +149,16 @@ async function logout() {
 async function loadLetters() {
     lettersLoading.style.display = 'block';
     lettersGrid.innerHTML = '';
-    
+
     try {
-        const snapshot = await db.collection('letters').orderBy('letterDate', 'desc').get();
+        const q = query(collection(db, 'letters'), orderBy('letterDate', 'desc'));
+        const snapshot = await getDocs(q);
         letters = [];
-        
-        snapshot.forEach(doc => {
-            letters.push({ id: doc.id, ...doc.data() });
+
+        snapshot.forEach(docSnap => {
+            letters.push({ id: docSnap.id, ...docSnap.data() });
         });
-        
+
         filteredLetters = [...letters];
         renderLetters();
     } catch (error) {
@@ -160,15 +173,15 @@ function renderLetters() {
     const startIndex = (currentPage - 1) * lettersPerPage;
     const endIndex = startIndex + lettersPerPage;
     const lettersToShow = filteredLetters.slice(startIndex, endIndex);
-    
+
     if (lettersToShow.length === 0) {
         lettersGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No letters found.</p>';
         pagination.innerHTML = '';
         return;
     }
-    
+
     lettersGrid.innerHTML = lettersToShow.map(letter => `
-        <div class="letter-card" onclick="showLetterPreview('${letter.id}')">
+        <div class="letter-card" data-letter-id="${letter.id}">
             <div class="letter-card-header">
                 <span class="letter-number">#${letter.letterNumber}</span>
                 <span class="letter-date">${formatDate(letter.letterDate)}</span>
@@ -177,7 +190,15 @@ function renderLetters() {
             <p class="letter-preview-text">${letter.mainBody.substring(0, 150)}${letter.mainBody.length > 150 ? '...' : ''}</p>
         </div>
     `).join('');
-    
+
+    // Add event listeners to each card
+    document.querySelectorAll('.letter-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const letterId = this.getAttribute('data-letter-id');
+            showLetterPreview(letterId);
+        });
+    });
+
     renderPagination();
 }
 
@@ -247,9 +268,9 @@ function searchLetters() {
 
 async function createLetter(letterData) {
     try {
-        await db.collection('letters').add({
+        await addDoc(collection(db, 'letters'), {
             ...letterData,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: serverTimestamp(),
             createdBy: currentUser.email
         });
         
@@ -272,7 +293,7 @@ async function createLetter(letterData) {
 
 async function updateLetter(letterId, letterData) {
     try {
-        await db.collection('letters').doc(letterId).update(letterData);
+        await updateDoc(doc(db, 'letters', letterId), letterData);
         
         // Hide form and reset
         letterForm.classList.remove('show');
@@ -291,30 +312,6 @@ async function updateLetter(letterId, letterData) {
         console.error('Error updating letter:', error);
         showErrorMessage('Failed to update letter. Please try again.');
     }
-}
-
-// Initialize TinyMCE editors
-function initializeEditors() {
-    tinymce.init({
-        selector: '.tinymce-editor',
-        height: 300,
-        setup: function(editor) {
-            editor.on('change', function() {
-                editor.save(); // Sync content back to textarea
-            });
-        },
-        menubar: false,
-        plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
-            'searchreplace', 'visualblocks', 'code', 'fullscreen',
-            'insertdatetime', 'table', 'code', 'help', 'wordcount'
-        ],
-        toolbar: 'undo redo | blocks | ' +
-            'bold italic underline strikethrough | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat | help',
-        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px }'
-    });
 }
 
 // Update the letter preview function to handle HTML content
@@ -420,7 +417,7 @@ function showDeleteConfirmation(letterId) {
     
     confirmDelete.onclick = async () => {
         try {
-            await db.collection('letters').doc(letterId).delete();
+            await deleteDoc(doc(db, 'letters', letterId));
             deleteModal.style.display = 'none';
             previewModal.style.display = 'none';
             await loadLetters();
@@ -446,11 +443,11 @@ async function editLetterForm(letter) {
         letterForm.classList.add('show');
         toggleFormBtn.classList.add('active');
     }, 10);
-    
+
     // Populate form fields
     document.getElementById('letterNumber').value = letter.letterNumber;
     document.getElementById('letterDate').value = letter.letterDate;
-    
+
     // Handle salutation
     const salutationSelect = document.getElementById('salutation');
     const customSalutation = document.getElementById('customSalutation');
@@ -462,11 +459,11 @@ async function editLetterForm(letter) {
         customSalutation.value = letter.salutation;
         customSalutation.classList.add('show');
     }
-    
+
     document.getElementById('subject').value = letter.subject;
-    tinymce.get('mainBody').setContent(letter.mainBody);
-    tinymce.get('specialRemarks').setContent(letter.specialRemarks || '');
-    
+    document.getElementById('mainBody').value = letter.mainBody || '';
+    document.getElementById('specialRemarks').value = letter.specialRemarks || '';
+
     // Handle closing
     const closingSelect = document.getElementById('closing');
     const customClosing = document.getElementById('customClosing');
@@ -478,10 +475,14 @@ async function editLetterForm(letter) {
         customClosing.value = letter.closing;
         customClosing.classList.add('show');
     }
-    
+
+    // Populate sender and recipient name fields
+    document.getElementById('senderName').value = letter.senderName || '';
+    document.getElementById('recipientName').value = letter.recipientName || '';
+
     // Store the letter ID for updating
     createLetterForm.setAttribute('data-editing-id', letter.id);
-    
+
     // Update form submit handler
     createLetterForm.removeEventListener('submit', createLetterHandler);
     createLetterForm.addEventListener('submit', updateLetterHandler);
@@ -490,16 +491,16 @@ async function editLetterForm(letter) {
 // Separate handlers for create and update
 async function createLetterHandler(e) {
     e.preventDefault();
-    
-    // Get TinyMCE content
-    const mainBodyContent = tinymce.get('mainBody').getContent().trim();
-    
+
+    // Get textarea content
+    const mainBodyContent = document.getElementById('mainBody').value.trim();
+
     // Validate required fields
     if (!mainBodyContent) {
         showErrorMessage('Letter body is required');
         return;
     }
-    
+
     const salutationSelect = document.getElementById('salutation');
     const customSalutation = document.getElementById('customSalutation');
     const salutation = salutationSelect.value === 'custom' ? customSalutation.value : salutationSelect.value;
@@ -514,7 +515,7 @@ async function createLetterHandler(e) {
         salutation: salutation,
         subject: document.getElementById('subject').value,
         mainBody: mainBodyContent,
-        specialRemarks: tinymce.get('specialRemarks').getContent(),
+        specialRemarks: document.getElementById('specialRemarks').value,
         closing: closing,
         senderName: document.getElementById('senderName').value,
         recipientName: document.getElementById('recipientName').value,
@@ -526,28 +527,30 @@ async function createLetterHandler(e) {
 async function updateLetterHandler(e) {
     e.preventDefault();
     const letterId = createLetterForm.getAttribute('data-editing-id');
-    
+
     const salutationSelect = document.getElementById('salutation');
     const customSalutation = document.getElementById('customSalutation');
     const salutation = salutationSelect.value === 'custom' ? customSalutation.value : salutationSelect.value;
-    
+
     const closingSelect = document.getElementById('closing');
     const customClosing = document.getElementById('customClosing');
     const closing = closingSelect.value === 'custom' ? customClosing.value : closingSelect.value;
-    
+
     const letterData = {
         letterNumber: document.getElementById('letterNumber').value,
         letterDate: document.getElementById('letterDate').value,
         salutation: salutation,
         subject: document.getElementById('subject').value,
-        mainBody: tinymce.get('mainBody').getContent(),
-        specialRemarks: tinymce.get('specialRemarks').getContent(),
+        mainBody: document.getElementById('mainBody').value,
+        specialRemarks: document.getElementById('specialRemarks').value,
         closing: closing,
+        senderName: document.getElementById('senderName').value,
+        recipientName: document.getElementById('recipientName').value,
         updatedAt: new Date().toISOString()
     };
-    
+
     await updateLetter(letterId, letterData);
-    
+
     // Reset form to create mode
     createLetterForm.removeAttribute('data-editing-id');
     createLetterForm.removeEventListener('submit', updateLetterHandler);
@@ -708,11 +711,4 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginLink) {
         loginLink.addEventListener('click', showLogin);
     }
-    
-    initializeEditors();
 });
-
-// Make functions globally available for onclick handlers
-window.showLetterPreview = showLetterPreview;
-window.showDeleteConfirmation = showDeleteConfirmation;
-window.changePage = changePage;

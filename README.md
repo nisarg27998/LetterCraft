@@ -2,6 +2,12 @@
 
 A professional letter creation and management system built with HTML, CSS, JavaScript, Firebase, and Vite for optimized builds.
 
+## Latest Updates (v1.3.0)
+- Improved authentication error handling
+- Firestore rules updated for admin-only write access
+- Removed TinyMCE, now uses basic textarea
+- Bug fixes and performance improvements
+
 ## Latest Updates (v1.2.0)
 - Added Rich Text Editor integration with TinyMCE
 - Improved PDF generation with proper formatting

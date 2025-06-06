@@ -39,4 +39,6 @@
   "firestore": {
     "rules": "firestore.rules"
   }
+
+  
 }
